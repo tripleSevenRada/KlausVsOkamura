@@ -7,7 +7,7 @@ import input.lemmatize.*
 import model.Model
 import java.io.File
 import test.*
-
+//
 private val rootK = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/modelDataLemmatized/ClassK"
 private val modelKName = "modelK"
 private val rootO = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/modelDataLemmatized/ClassO"
