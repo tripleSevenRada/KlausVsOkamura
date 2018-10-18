@@ -1,9 +1,10 @@
 package app
+
 import model.learn.read.ModelDataReader
 import model.learn.LemmaDataPerClass
 import model.learn.NgramGraph
 import input.lemmatize.*
-import model.ModelWrapper
+import model.Model
 import java.io.File
 import test.*
 
@@ -20,19 +21,21 @@ private val inputFileNonLemmatized = "inputNonLemmatized.txt"
 private val inputFileLemmatized = "inputLemmatized.txt"
 private val TAG = "APP"
 
-fun main(args:Array<String>){
+const val HOW_MANY_POPULARITY_TUPLES_INTERESTED = 50
+
+fun main(args: Array<String>) {
 	val app = App()
 	app.runApp()
 }
 
-class App{
-	
-	private var modelList = mutableListOf<ModelWrapper>()
-	
-	fun runApp(){
+class App {
+
+	private var modelList = mutableListOf<Model>()
+
+	fun runApp() {
 		println("$TAG : speech sentiment classifier")
 
-		
+
 		testEyeBallNgramTree()
 		testIsNgram0()
 		testIsNgram1()
@@ -40,7 +43,8 @@ class App{
 		testIsNgram3()
 		testIsNgram4()
 		testIsNgramEdgeCases()
-		
+
+		//fail("halt")
 
 		var startTime = System.currentTimeMillis()
 		println("\n$TAG : Start build models")
@@ -54,29 +58,27 @@ class App{
 
 		val readerLemmasInputLemmatized = ModelDataReader(inputDir, true)
 		val lemmatizedInput = readerLemmasInputLemmatized.readFile(File(inputDir + PREFIX + inputFileLemmatized))
-		if(lemmatizedInput.size == 0)fail("lemmatizedInput.size == 0")
-		
+		if (lemmatizedInput.size == 0) fail("lemmatizedInput.size == 0")
+
 		//testPrintNgrams(lemmatizedInput, modelList.get(0))
 		//testPrintNgrams(lemmatizedInput, modelList.get(1))
-		
+
 	}
 
-	private fun buildModels(){
+	private fun buildModels() {
 		if (modelRoots.size != modelNames.size) fail("modelRoots.size != modelNames.size")
-		for(i in modelRoots.indices){
+		for (i in modelRoots.indices) {
 			val dataReader = ModelDataReader(modelRoots[i], false)
 			val lemmaList = dataReader.getLemmatizedList()
-			val stats = LemmaDataPerClass(modelNames[i], lemmaList)
+			val lemmaDataPerClass = LemmaDataPerClass(modelNames[i], lemmaList)
 			val nGram = NgramGraph(lemmaList)
-			nGram.buildNgramGraph()
-			
+
 			print("$TAG INSTANTIATING MODEL: ${modelNames[i]}")
-			stats.printStats()
-			stats.printSortedByFrequencies(150)
-			nGram.printStats()
-			val wrapper = ModelWrapper(
+			lemmaDataPerClass.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
+			nGram.printDataStructures()
+			val wrapper = Model(
 					lemmaList,
-					stats,
+					lemmaDataPerClass,
 					nGram,
 					modelNames[i]
 			)
@@ -84,13 +86,13 @@ class App{
 		}
 	}
 
-	private fun lemmatizeInput(){
+	private fun lemmatizeInput() {
 		val input: Lemmatizer = Lemmatizer(inputDir, inputFileNonLemmatized, inputFileLemmatized)
-			input.lemmatize()
+		input.lemmatize()
 	}
 }
 
-fun fail(message: String): Nothing{
+fun fail(message: String): Nothing {
 	throw Exception(message)
 	//System.err.println(message)
 }
