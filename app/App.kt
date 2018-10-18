@@ -3,6 +3,8 @@ package app
 import model.learn.read.ModelDataReader
 import model.learn.LemmaDataPerClass
 import model.learn.NgramGraph
+import model.learn.Ngram
+import model.learn.NgramProvider
 import input.lemmatize.*
 import model.Model
 import java.io.File
@@ -35,7 +37,6 @@ class App {
 	fun runApp() {
 		println("$TAG : speech sentiment classifier")
 
-
 		testEyeBallNgramTree()
 		testIsNgram0()
 		testIsNgram1()
@@ -43,6 +44,7 @@ class App {
 		testIsNgram3()
 		testIsNgram4()
 		testIsNgramEdgeCases()
+		testBagOfNgramsEyeBall()
 
 		//fail("halt")
 
@@ -72,6 +74,9 @@ class App {
 			val lemmaList = dataReader.getLemmatizedList()
 			val lemmaDataPerClass = LemmaDataPerClass(modelNames[i], lemmaList)
 			val nGram = NgramGraph(lemmaList)
+			val nGramOf2 = Ngram(nGram,"2-GRAM",2)
+			val nGramOf3 = Ngram(nGram,"3-GRAM",3)
+			val nGrams = listOf<NgramProvider>(nGramOf2,nGramOf3)
 
 			print("$TAG INSTANTIATING MODEL: ${modelNames[i]}")
 			lemmaDataPerClass.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
@@ -79,6 +84,7 @@ class App {
 			val wrapper = Model(
 					lemmaList,
 					lemmaDataPerClass,
+					nGrams,
 					nGram,
 					modelNames[i]
 			)

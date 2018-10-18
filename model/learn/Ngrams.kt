@@ -108,51 +108,62 @@ class NgramGraph {
 	}
 }
 
-class Ngram{//: NgramProvider
-	
+class Ngram : NgramProvider {
+
 	val name: String
 		get() = this.toString() + " bound to: " + field + "-" + length + "-GRAM"
 	val length: Int
 	val graph: NgramGraph
 	val rawLemmaList: List<String>
 	val nGramsToFrequencies = mutableMapOf<PopularityTuple, Int>()
-	val howManyNotUniqueNgramsWillBe : Int
-	
+	val howManyNotUniqueNgramsWillBe: Int
+
 	constructor(
 			graph: NgramGraph,
 			name: String,
 			length: Int
-	){
+	) {
 		this.graph = graph
 		this.name = name
 		this.length = length
 		rawLemmaList = graph.rawLemmaList
 		howManyNotUniqueNgramsWillBe = rawLemmaList.size / length
-		if(howManyNotUniqueNgramsWillBe < 1) fail("howManyNgramsWillBe? $howManyNotUniqueNgramsWillBe")
+		if (howManyNotUniqueNgramsWillBe < 1) fail("howManyNgramsWillBe? $howManyNotUniqueNgramsWillBe")
 		buildNgramBagOfPopularityTuples(rawLemmaList, length, this::chopper)
 	}
-	
+
 	// syntax exercise...
 	private fun chopper(lemmas: List<String>, position: Int, lenght: Int): List<String> = lemmas.subList(position, position + lenght)
-	
+
 	private fun buildNgramBagOfPopularityTuples(
 			lemmas: List<String>,
 			size: Int,
-			chop: (List<String>, Int, Int) -> List<String>){
-		for (i in 0..howManyNotUniqueNgramsWillBe){
-			val nGram = chop(lemmas, i*size, size)
-			println("nGram:  --  $nGram")
+			chop: (List<String>, Int, Int) -> List<String>) {
+		for (i in 0..howManyNotUniqueNgramsWillBe - 1) {
+			val nGram = chop(lemmas, i * size, size)
 		}
 	}
-	
-	// NgramProvider
-	/**
-	override fun getDescription(): String{return name}
-	override fun getPopularityTuplesSize(): Int{
-		
+
+	// NgramProvider TODO
+	override fun getDescription(): String {
+		return name
 	}
-	override fun getNgramSize(): Int
-	override fun getPopularityHeadOfSize(topRank: Int): List<PopularityTuple>
-	*/
+
+	override fun getPopularityTuplesSize(): Int {
+		return -1
+	}
+
+	override fun getNgramSize(): Int {
+		return -1
+	}
+
+	override fun getPopularityHeadOfSize(topRank: Int): List<PopularityTuple> {
+		return listOf<PopularityTuple>()
+	}
+
+	//TODO
+	override fun printDataStructures(howMany: Int) {
+
+	}
 	//
 }

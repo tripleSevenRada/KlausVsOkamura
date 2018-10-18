@@ -2,7 +2,9 @@ package test
 
 import model.learn.read.ModelDataReader
 import model.learn.LemmaDataPerClass
+import model.learn.Ngram
 import model.learn.NgramGraph
+import model.learn.NgramProvider
 import model.Model
 import app.*
 
@@ -20,30 +22,29 @@ private val TAG = "Tests.kt"
 
 fun getModelVerbose(dir: String, print: Boolean): Model {
 	val model = getModel(dir, print)
-	println("$TAG : " + model.listOfLemmas)
-	val stats = model.lemmaFrequenciesPerClass
-	printAllStats(stats, HOW_MANY_POPULARITY_TUPLES_INTERESTED)
+	println("$TAG : lemmas " + model.listOfLemmas)
+	val lemmaFrequencies = model.lemmaFrequenciesPerClass
+	lemmaFrequencies.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
 	val nGramGraph = model.nGramGraph
-	printNgramGraph(nGramGraph)
+	nGramGraph.printDataStructures()
+	val nGrams = model.nGrams
+	nGrams.forEach{
+		it.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
+	}
 	return model
-}
-
-fun printAllStats(stats: LemmaDataPerClass, howManySorted: Int) {
-	stats.printDataStructures(howManySorted)
-}
-
-fun printNgramGraph(graph: NgramGraph) {
-	graph.printDataStructures()
 }
 
 // MODEL FACTORY
 fun getModel(dir: String, print: Boolean): Model {
 	val model: ModelDataReader = ModelDataReader(dir, print)
-	val modelTestList: List<String> = model.getLemmatizedList()
+	val modelLemmaList: List<String> = model.getLemmatizedList()
 	val modelName = "TestsNgram-modelFactory--$dir"
-	val stats = LemmaDataPerClass(modelName, modelTestList)
-	val nGramGraph = NgramGraph(modelTestList)
-	return Model(modelTestList, stats, nGramGraph, modelName)
+	val uniGram = LemmaDataPerClass(modelName, modelLemmaList)
+	val nGramGraph = NgramGraph(modelLemmaList)
+	val nGramOf2 = Ngram(nGramGraph,"2-GRAM",2)
+	val nGramOf3 = Ngram(nGramGraph,"3-GRAM",3)
+	val nGrams = listOf<NgramProvider>(nGramOf2,nGramOf3)
+	return Model(modelLemmaList, uniGram, nGrams, nGramGraph, modelName)
 }
 
 fun testEyeBallNgramTree() {
@@ -356,7 +357,7 @@ fun testPrintNgrams(lemmas: List<String>, wrapper: Model) {
 }
 
 // TODO
-fun testBiGramEyeBall(){
+fun testBagOfNgramsEyeBall(){
 	// "musime", "zlepsit", "komunikaci", "musime", "zlepsit", "interakci", "zlepsit", "vse", "pratele" 
 	val model = getModelVerbose(rootTestIsNgramOfLength0, true)
 }

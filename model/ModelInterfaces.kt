@@ -5,4 +5,6 @@ interface NgramProvider {
 	fun getPopularityTuplesSize(): Int
 	fun getNgramSize(): Int
 	fun getPopularityHeadOfSize(topRank: Int): List<PopularityTuple>
+	
+	fun printDataStructures(howMany: Int)
 }

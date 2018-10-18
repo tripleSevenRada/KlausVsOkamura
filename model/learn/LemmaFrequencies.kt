@@ -51,14 +51,12 @@ class LemmaDataPerClass: NgramProvider {
 		if(topRank > sortedByFrequencies.size) fail("topRank > sortedByFrequencies.size")
 		return sortedByFrequencies.subList(0,topRank)
 	}
-	//
-	
-	fun printDataStructures(howMany: Int) {
+	override fun printDataStructures(howMany: Int) {
 		printStats()
 		printMap()
 		printSortedByFrequencies(howMany)
 	}
-
+	//
 	private fun printStats() {
 		println("\n________________________________________________________________________")
 		println("$TAG : STATS")

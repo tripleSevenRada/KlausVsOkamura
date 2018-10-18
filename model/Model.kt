@@ -1,19 +1,22 @@
 package model
 
-import model.learn.LemmaDataPerClass
+import model.learn.NgramProvider
 import model.learn.NgramGraph
 
 class Model(
 		modelList: List<String>,
-		modelStats: LemmaDataPerClass,
-		modelNgram: NgramGraph,
+		modelUnigram: NgramProvider,
+		modelNgrams: List<NgramProvider>,
+		modelNgramGraph: NgramGraph,
 		modelName: String) {
 
 	public val listOfLemmas = modelList
 		get() = field
-	public val lemmaFrequenciesPerClass = modelStats
+	public val lemmaFrequenciesPerClass = modelUnigram
 		get() = field
-	public val nGramGraph = modelNgram
+	public val nGramGraph = modelNgramGraph
+		get() = field
+	public val nGrams = modelNgrams
 		get() = field
 	public val modelName = modelName
 		get() = field
