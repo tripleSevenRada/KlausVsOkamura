@@ -16,7 +16,8 @@ class Lemmatizer(inputDirPath: String, filename: String, filenameLemmatized: Str
 
 	// TODO di?
 	val morphoDiTaModel = "/home/radim/morphoDiTaModels/czech-morfflex-pdt-161115/czech-morfflex-pdt-161115.tagger" //czech-morfflex-161115.dict
-	val morphoDiTaBinDir = "/home/radim/morphoDiTa/githubRepo/morphodita/src/"
+	//val morphoDiTaBinDir = "/home/radim/morphoDiTa/githubRepo/morphodita/src/"
+	val morphoDiTaBinDir = "/home/radim/morphoDiTa/morphodita/src/"
 	val useGuesser = 1
 	val baseMorphoDiTaCommand = morphoDiTaBinDir + "run_morpho_analyze --output=vertical --from_tagger " + morphoDiTaModel + " " + useGuesser + " "
 
