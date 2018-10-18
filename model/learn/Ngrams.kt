@@ -41,7 +41,7 @@ class NgramGraph {
 				lemmaToAdjacents.put(lemma, newAdjSet)
 			}
 
-			// last lemma is last nextLemma, it may need an empty (leaf) set
+			// last lemma needs an empty (leaf) set
 			if (i == sizeRawLemmaList - 2) {
 				if (!lemmaToAdjacents.containsKey(nextLemma))
 					lemmaToAdjacents.put(nextLemma, mutableSetOf<String>())

@@ -79,8 +79,6 @@ class App {
 			val nGrams = listOf<NgramProvider>(nGramOf2,nGramOf3)
 
 			print("$TAG INSTANTIATING MODEL: ${modelNames[i]}")
-			lemmaDataPerClass.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
-			nGram.printDataStructures()
 			val wrapper = Model(
 					lemmaList,
 					lemmaDataPerClass,
