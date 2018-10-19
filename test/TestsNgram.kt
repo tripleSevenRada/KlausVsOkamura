@@ -17,6 +17,7 @@ private val rootTest1 = rootDir + "TestNgram"
 private val rootTestIsNgramOfLength0 = rootDir + "TestIsNgram0"
 private val rootTestIsNgramOfLength1 = rootDir + "TestIsNgram1"
 private val rootTestIsNgramOfLength2 = rootDir + "TestIsNgram2"
+private val rootTestBagOfNgrams = rootDir + "TestBagOfNgramsEyeball"
 
 private val TAG = "Tests.kt"
 
@@ -24,12 +25,12 @@ fun getModelVerbose(dir: String, print: Boolean): Model {
 	val model = getModel(dir, print)
 	println("$TAG : lemmas " + model.listOfLemmas)
 	val lemmaFrequencies = model.lemmaFrequenciesPerClass
-	lemmaFrequencies.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
+	lemmaFrequencies.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
 	val nGramGraph = model.nGramGraph
 	nGramGraph.printDataStructures()
 	val nGrams = model.nGrams
 	nGrams.forEach{
-		it.printDataStructures(HOW_MANY_POPULARITY_TUPLES_INTERESTED)
+		it.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
 	}
 	return model
 }
@@ -346,7 +347,7 @@ fun testIsNgramEdgeCases() {
 }
 
 fun testPrintNgrams(lemmas: List<String>, wrapper: Model) {
-	println("\n\n------------------nGrams, model = ${wrapper.modelName}\n")
+	println("\n\n------------------nGramsGraph, model = ${wrapper.modelName}\n")
 	var acu = 0
 	for (i in lemmas.indices) {
 		val nGramNow = wrapper.nGramGraph.isNgramOfLength(lemmas, i)
@@ -359,7 +360,13 @@ fun testPrintNgrams(lemmas: List<String>, wrapper: Model) {
 // TODO
 fun testBagOfNgramsEyeBall(){
 	// "musime", "zlepsit", "komunikaci", "musime", "zlepsit", "interakci", "zlepsit", "vse", "pratele" 
-	val model = getModelVerbose(rootTestIsNgramOfLength0, true)
+	val model = getModelVerbose(rootTestBagOfNgrams, true)
+	println("\n\n------------------testBagOfNgramsEyeBall, model = ${model.modelName}\n")
+	println("full lemma list: ${model.listOfLemmas}")
+	model.nGrams.forEach{
+		println("------------------------------------------------------------------------------------------")
+		it.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
+	}
 }
 
 

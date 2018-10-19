@@ -111,13 +111,15 @@ class NgramGraph {
 class Ngram : NgramProvider {
 
 	val name: String
-		get() = this.toString() + " bound to: " + field + "-" + length + "-GRAM"
+		get() = this.toString() + " bound to: $field -$length-GRAM"
 	val length: Int
 	val graph: NgramGraph
 	val rawLemmaList: List<String>
-	val nGramsToFrequencies = mutableMapOf<PopularityTuple, Int>()
+	val nGramsToFrequencies = mutableMapOf<List<String>, Int>()
+	val popularityTuplesSorted = mutableListOf<PopularityTuple>()
 	val howManyNotUniqueNgramsWillBe: Int
-
+	val TAG: String
+	
 	constructor(
 			graph: NgramGraph,
 			name: String,
@@ -125,9 +127,10 @@ class Ngram : NgramProvider {
 	) {
 		this.graph = graph
 		this.name = name
+		TAG = "${this.toString()}: $name"
 		this.length = length
 		rawLemmaList = graph.rawLemmaList
-		howManyNotUniqueNgramsWillBe = rawLemmaList.size / length
+		howManyNotUniqueNgramsWillBe = rawLemmaList.size - length + 1
 		if (howManyNotUniqueNgramsWillBe < 1) fail("howManyNgramsWillBe? $howManyNotUniqueNgramsWillBe")
 		buildNgramBagOfPopularityTuples(rawLemmaList, length, this::chopper)
 	}
@@ -139,31 +142,62 @@ class Ngram : NgramProvider {
 			lemmas: List<String>,
 			size: Int,
 			chop: (List<String>, Int, Int) -> List<String>) {
-		for (i in 0..howManyNotUniqueNgramsWillBe - 1) {
-			val nGram = chop(lemmas, i * size, size)
+		for (i in 0 until howManyNotUniqueNgramsWillBe) {
+			val nGram = chop(lemmas, i, size)
+			// I have seen this nGram
+			if(nGramsToFrequencies.containsKey(nGram)){
+				var seenSoFar = nGramsToFrequencies.get(nGram)
+				if(seenSoFar != null) seenSoFar++ else fail("unexpected null seenSoFar")
+				nGramsToFrequencies.put(nGram, seenSoFar)
+			// I have not seen this nGram so far	
+			} else {
+				nGramsToFrequencies.put(nGram, 1)
+			}
+		}
+		// convert map of nGrams -> their frequencies to sortable list of popularity tuples
+		nGramsToFrequencies.keys.forEach{
+			popularityTuplesSorted.add(PopularityTuple(it, nGramsToFrequencies.get(it)?.toInt() ?: -1))
+		}
+		// check for unexpected -1 frequency
+		popularityTuplesSorted.forEach{
+			if(it.frequency == -1)fail("${it.toString()} unexpected -1 meaning null")
+		}
+		popularityTuplesSorted.sort()
+	}
+
+	//NgramProvider
+	override fun getDescription(): String  = name
+	override fun getPopularityTuplesSize(): Int = popularityTuplesSorted.size
+	override fun getNgramSize(): Int = this.length
+	override fun getPopularityHeadOfSize(topRank: Int): List<PopularityTuple> = popularityTuplesSorted.subList(0, topRank)
+	override fun printDataStructures (howMany: Int) {
+		println("\n________________________________________________________________________")
+		println("\n________________________________________________________________________")
+		println("$TAG : PRINT DATASTRUCTURES")
+		println("\n________________________________________________________________________")
+		printBasicStats()
+		println("\n________________________________________________________________________")
+		println("\n\nPOPULARITY_TUPLES_SORTED:")
+		val howManyClipped = if (howMany < popularityTuplesSorted.size) howMany else popularityTuplesSorted.size 
+		popularityTuplesSorted.subList(0, howManyClipped).forEach{
+			println(it)
+		}
+		println("\n\nNGRAMS_TO_FREQUENCIES:")
+		var c = 0
+		nGramsToFrequencies.entries.forEach{
+			if(c < howManyClipped){
+				println(it)
+				c++
+			} else {
+				return@forEach
+			}
 		}
 	}
-
-	// NgramProvider TODO
-	override fun getDescription(): String {
-		return name
-	}
-
-	override fun getPopularityTuplesSize(): Int {
-		return -1
-	}
-
-	override fun getNgramSize(): Int {
-		return -1
-	}
-
-	override fun getPopularityHeadOfSize(topRank: Int): List<PopularityTuple> {
-		return listOf<PopularityTuple>()
-	}
-
-	//TODO
-	override fun printDataStructures(howMany: Int) {
-
+	
+	fun printBasicStats(){
+		println("BASIC STATS:")
+		println("notUniqueNgrams: $howManyNotUniqueNgramsWillBe")
+		println("uniqueNgrams: ${nGramsToFrequencies.entries.size}")
 	}
 	//
 }

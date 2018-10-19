@@ -5,7 +5,7 @@ import app.fail
 
 class LemmaDataPerClass: NgramProvider {
 	var name: String
-		get() = this.toString() + " bound to: " + field + "-1-GRAM"
+		get() = this.toString() + " bound to: $field -1-GRAM"
 	private val list: List<String>
 		get
 	private var lemmasToFrequencies = mutableMapOf<String, Int>()
@@ -53,28 +53,36 @@ class LemmaDataPerClass: NgramProvider {
 	}
 	override fun printDataStructures(howMany: Int) {
 		printStats()
-		printMap()
+		printMap(howMany)
 		printSortedByFrequencies(howMany)
 	}
 	//
 	private fun printStats() {
-		println("\n________________________________________________________________________")
+		println("\n\n________________________________________________________________________")
 		println("$TAG : STATS")
 		println("name: $name")
 		println("sizeRawListLemmas: $sizeRawListLemmas")
 		println("sizeUniqueLemmas: $sizeUniqueLemmas")
 	}
 
-	private fun printMap() {
-		println("\n________________________________________________________________________")
+	private fun printMap(howMany: Int) {
+		println("\n\n________________________________________________________________________")
 		println("$TAG : LEMMAS_TO_FREQUENCIES")
-		println(lemmasToFrequencies)
+		var c = 0
+		lemmasToFrequencies.entries.forEach{
+			if(c < howMany){
+				println(it)
+				c++
+			} else {
+				return@forEach
+			}
+		}
 	}
 
 	private fun printSortedByFrequencies(howMany: Int) {
 		if (sortedByFrequencies.size == 0) return
 		var iterate = howMany
-		println("\n________________________________________________________________________")
+		println("\n\n________________________________________________________________________")
 		println("$TAG : SORTED_BY_FREQUENCIES")
 		println("Head: " + sortedByFrequencies.get(0))
 		if (iterate > sortedByFrequencies.size) iterate = sortedByFrequencies.size
