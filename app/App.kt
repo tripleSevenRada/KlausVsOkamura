@@ -8,7 +8,7 @@ import model.learn.NgramProvider
 import model.learn.PrunePunctuation
 import input.lemmatize.*
 import model.Model
-import java.io.File
+import java.io.*
 import test.*
 import java.io.FileInputStream
 import java.util.Properties
@@ -20,10 +20,18 @@ fun main(args: Array<String>) {
 	// https://chercher.tech/kotlin/properties-file-kotlin
 
     val mapProp = mutableMapOf<String, String>()
-    val fis = FileInputStream("properties.properties")
-    val prop = Properties()
-    prop.load(fis)
-    fis.close()
+	var fis: FileInputStream? = null
+	var prop: Properties
+	try{
+		fis = FileInputStream("properties.properties")
+		prop = Properties()
+		prop.load(fis)
+	}catch(e: IOException){
+		fail(e.getLocalizedMessage())
+	}finally{
+		if(fis != null)fis.close()
+	}
+
     val enumKeys = prop.keys()
     while (enumKeys.hasMoreElements()) {
         val key = enumKeys.nextElement() as String
@@ -54,20 +62,28 @@ class App{
 	private val inputFileNonLemmatized = "inputNonLemmatized.txt"
 	private val inputFileLemmatized = "inputLemmatized.txt"
 	
-	private val HOW_MANY_OUTPUT_ITEMS = 12
+	private val howManyOutputItems: Int
+	private val howManyOutputItemsDefault = 12
 	
 	private val properties: Map<String,String>
 	
 	constructor(mapProp: Map<String, String>){
 		this.properties = mapProp
+		val howMany: String? = mapProp.get("howManyOutputItems")
+		howManyOutputItems = if(howMany != null) {
+				val howManyOrNull: Int? = howMany.toIntOrNull()
+				if(howManyOrNull != null) howManyOrNull else howManyOutputItemsDefault
+			} else {
+				howManyOutputItemsDefault
+			}
 	}
 	
 	private var modelList = mutableListOf<Model>()
 
 	fun runApp() {
 		
-		/*
- 		test.HOW_MANY_OUTPUT_ITEMS = this.HOW_MANY_OUTPUT_ITEMS
+		
+ 		test.howManyOutputItems = this.howManyOutputItems
 		testEyeBallNgramTree()
 		testIsNgram0()
 		testIsNgram1()
@@ -76,7 +92,7 @@ class App{
 		testIsNgram4()
 		testIsNgramEdgeCases()
 		testBagOfNgramsEyeBall()
-		*/
+		
 			
 		//fail("halt")
 
@@ -113,9 +129,9 @@ class App{
 			val nGramOf3 = Ngram(nGramGraph,"3-GRAM",3)// NGramProvider
 			val nGrams = listOf<NgramProvider>(nGramOf2,nGramOf3)
 
-			lemmaDataPerClass_nGramOf1.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
+			lemmaDataPerClass_nGramOf1.printDataStructures(howManyOutputItems)
 			//nGramGraph.printDataStructures() // prints all!
-			nGrams.forEach{it.printDataStructures(HOW_MANY_OUTPUT_ITEMS)}
+			nGrams.forEach{it.printDataStructures(howManyOutputItems)}
 			
 			print("\n\n$TAG INSTANTIATING MODEL: ${modelNames[i]}")
 			val wrapper = Model(

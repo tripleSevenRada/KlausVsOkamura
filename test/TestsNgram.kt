@@ -21,7 +21,7 @@ private val rootTestBagOfNgrams = rootDir + "TestBagOfNgramsEyeball"
 
 private val TAG = "Tests.kt"
 
-var HOW_MANY_OUTPUT_ITEMS = 12
+var howManyOutputItems = 12
 	set(howMany: Int){
 		field = howMany
 	} 
@@ -30,12 +30,12 @@ fun getModelVerbose(dir: String, print: Boolean): Model {
 	val model = getModel(dir, print)
 	println("$TAG : lemmas " + model.listOfLemmas)
 	val lemmaFrequencies = model.lemmaFrequenciesPerClass
-	lemmaFrequencies.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
+	lemmaFrequencies.printDataStructures(howManyOutputItems)
 	val nGramGraph = model.nGramGraph
 	nGramGraph.printDataStructures()
 	val nGrams = model.nGrams
 	nGrams.forEach{
-		it.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
+		it.printDataStructures(howManyOutputItems)
 	}
 	return model
 }
@@ -370,7 +370,7 @@ fun testBagOfNgramsEyeBall(){
 	println("full lemma list: ${model.listOfLemmas}")
 	model.nGrams.forEach{
 		println("------------------------------------------------------------------------------------------")
-		it.printDataStructures(HOW_MANY_OUTPUT_ITEMS)
+		it.printDataStructures(howManyOutputItems)
 	}
 }
 
