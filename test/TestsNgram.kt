@@ -6,7 +6,7 @@ import model.learn.Ngram
 import model.learn.NgramGraph
 import model.learn.NgramProvider
 import model.Model
-import app.*
+import app.fail
 
 private val rootDir = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/modelDataLemmatized/TestNgram/"
 private val rootTestUnique = rootDir + "TestNgramAllUnique"
@@ -20,6 +20,11 @@ private val rootTestIsNgramOfLength2 = rootDir + "TestIsNgram2"
 private val rootTestBagOfNgrams = rootDir + "TestBagOfNgramsEyeball"
 
 private val TAG = "Tests.kt"
+
+var HOW_MANY_OUTPUT_ITEMS = 12
+	set(howMany: Int){
+		field = howMany
+	} 
 
 fun getModelVerbose(dir: String, print: Boolean): Model {
 	val model = getModel(dir, print)

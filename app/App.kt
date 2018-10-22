@@ -10,35 +10,64 @@ import input.lemmatize.*
 import model.Model
 import java.io.File
 import test.*
-//
-private val rootK = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/modelDataLemmatized/ClassK"
-private val modelKName = "modelK"
-private val rootO = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/modelDataLemmatized/ClassO"
-private val modelOName = "modelO"
+import java.io.FileInputStream
+import java.util.Properties
 
-private val modelRoots = arrayOf(rootK, rootO)
-private val modelNames = arrayOf(modelKName, modelOName)
-
-private val inputDir = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/input/"
-private val inputFileNonLemmatized = "inputNonLemmatized.txt"
-private val inputFileLemmatized = "inputLemmatized.txt"
 private val TAG = "APP"
 
-const val HOW_MANY_OUTPUT_ITEMS = 20
-
 fun main(args: Array<String>) {
-	val app = App()
+
+	// https://chercher.tech/kotlin/properties-file-kotlin
+
+    val mapProp = mutableMapOf<String, String>()
+    val fis = FileInputStream("properties.properties")
+    val prop = Properties()
+    prop.load(fis)
+    fis.close()
+    val enumKeys = prop.keys()
+    while (enumKeys.hasMoreElements()) {
+        val key = enumKeys.nextElement() as String
+        val value = prop.getProperty(key) as String
+        mapProp[key] = value
+    }
+	
+	println("$TAG : Speech sentiment classifier")
+    println("Properties : $mapProp")
+	
+	val publishedMapProp: Map<String,String> = mapProp
+	
+	val app = App(publishedMapProp)
 	app.runApp()
 }
 
-class App {
+class App{
 
+	private val rootK = "modelDataLemmatized/ClassK"
+	private val modelKName = "modelK"
+	private val rootO = "modelDataLemmatized/ClassO"
+	private val modelOName = "modelO"
+
+	private val modelRoots = arrayOf(rootK, rootO)
+	private val modelNames = arrayOf(modelKName, modelOName)
+
+	private val inputDir = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/input/"
+	private val inputFileNonLemmatized = "inputNonLemmatized.txt"
+	private val inputFileLemmatized = "inputLemmatized.txt"
+	
+	private val HOW_MANY_OUTPUT_ITEMS = 12
+	
+	private val properties: Map<String,String>
+	
+	constructor(mapProp: Map<String, String>){
+		this.properties = mapProp
+	}
+	
 	private var modelList = mutableListOf<Model>()
 
 	fun runApp() {
-		println("$TAG : Speech sentiment classifier")
-
+		
 		/*
+ 		test.HOW_MANY_OUTPUT_ITEMS = this.HOW_MANY_OUTPUT_ITEMS
 		testEyeBallNgramTree()
 		testIsNgram0()
 		testIsNgram1()
@@ -52,14 +81,14 @@ class App {
 		//fail("halt")
 
 		var startTime = System.currentTimeMillis()
-		println("\n$TAG : Start build models")
-		buildModels()
-		println("\n$TAG : Time taken build models: " + (System.currentTimeMillis() - startTime))
-
-		startTime = System.currentTimeMillis()
 		println("\n$TAG : Start lemmatize input")
 		lemmatizeInput()
 		println("\n$TAG : Time taken lemmatize input: " + (System.currentTimeMillis() - startTime))
+		
+		startTime = System.currentTimeMillis()
+		println("\n$TAG : Start build models")
+		buildModels()
+		println("\n$TAG : Time taken build models: " + (System.currentTimeMillis() - startTime))
 
 		val prunePunct = PrunePunctuation()
 		

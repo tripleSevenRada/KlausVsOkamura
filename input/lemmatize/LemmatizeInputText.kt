@@ -19,6 +19,7 @@ class Lemmatizer(inputDirPath: String, filename: String, filenameLemmatized: Str
 	val morphoDiTaBinDir = "/home/radim/morphoDiTa/githubRepo/morphodita/src/"
 	//val morphoDiTaBinDir = "/home/radim/morphoDiTa/morphodita/src/"// laptop
 	val useGuesser = 1
+	
 	val baseMorphoDiTaCommand = morphoDiTaBinDir + "run_morpho_analyze --output=vertical --from_tagger " + morphoDiTaModel + " " + useGuesser + " "
 
 	fun lemmatize() {
