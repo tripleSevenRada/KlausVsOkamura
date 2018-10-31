@@ -90,10 +90,12 @@ class App{
 	}
 	
 	private var modelList = mutableListOf<Model>()
+	private var inputModel: Model? = null
 
+	// TODO code duplicity... 
 	fun runApp() {
 		
-		
+		/**
  		test.howManyOutputItems = this.howManyOutputItems
 		testEyeBallNgramTree()
 		testIsNgram0()
@@ -103,7 +105,7 @@ class App{
 		testIsNgram4()
 		testIsNgramEdgeCases()
 		testBagOfNgramsEyeBall()
-		
+		*/
 			
 		//fail("halt")
 
@@ -112,17 +114,42 @@ class App{
 		lemmatizeInput()
 		println("\n$TAG : Time taken lemmatize input: " + (System.currentTimeMillis() - startTime))
 		
+		// build model of an input, not a class
 		startTime = System.currentTimeMillis()
-		println("\n$TAG : Start build models")
-		buildModels()
-		println("\n$TAG : Time taken build models: " + (System.currentTimeMillis() - startTime))
-
+		println("\n$TAG : Start build input model")
+		val inputModelName = "inputModel"
 		val prunePunct = PrunePunctuation()
-		
 		val readerLemmasInputLemmatized = ModelDataReader(inputDir, true)
 		val lemmatizedInput = prunePunct.prune(readerLemmasInputLemmatized.readFile(File(inputDir + PREFIX + inputFileLemmatized)))
 		if (lemmatizedInput.size == 0) fail("lemmatizedInput.size == 0")
+		val lemmaDataPerClass_nGramOf1 = LemmaDataPerClass(inputModelName, lemmatizedInput)// NGramProvider
+		val nGramGraph = NgramGraph(lemmatizedInput)
+		val nGramOf2 = Ngram(nGramGraph,"2-GRAM-$inputModelName",2)// NGramProvider
+		val nGramOf3 = Ngram(nGramGraph,"3-GRAM-$inputModelName",3)// NGramProvider
+		val nGrams = listOf<NgramProvider>(nGramOf2, nGramOf3)
+
+		lemmaDataPerClass_nGramOf1.printDataStructures(howManyOutputItems)
+		//nGramGraph.printDataStructures() // prints all!
+		nGrams.forEach{it.printDataStructures(howManyOutputItems)}
 		
+		print("\n\n$TAG INSTANTIATING INPUT MODEL: $inputModelName")
+		inputModel = getWrappedModel(
+					lemmatizedInput,
+					lemmaDataPerClass_nGramOf1,
+					nGrams,
+					nGramGraph,
+					inputModelName
+					)
+		
+		println("\n$TAG : Time taken build input model: " + (System.currentTimeMillis() - startTime))
+		//
+		
+		// build models of classes
+		startTime = System.currentTimeMillis()
+		println("\n$TAG : Start build class models")
+		buildModels()
+		println("\n$TAG : Time taken build models: " + (System.currentTimeMillis() - startTime))
+		//
 	}
 
 	private fun buildModels() {
@@ -136,24 +163,34 @@ class App{
 			val lemmaList = prunePunct.prune(dataReader.getLemmatizedList())
 			val lemmaDataPerClass_nGramOf1 = LemmaDataPerClass(modelNames[i], lemmaList)// NGramProvider
 			val nGramGraph = NgramGraph(lemmaList)
-			val nGramOf2 = Ngram(nGramGraph,"2-GRAM",2)// NGramProvider
-			val nGramOf3 = Ngram(nGramGraph,"3-GRAM",3)// NGramProvider
+			val nGramOf2 = Ngram(nGramGraph,"2-GRAM-$modelNames[i]",2)// NGramProvider
+			val nGramOf3 = Ngram(nGramGraph,"3-GRAM-$modelNames[i]",3)// NGramProvider
 			val nGrams = listOf<NgramProvider>(nGramOf2,nGramOf3)
 
 			lemmaDataPerClass_nGramOf1.printDataStructures(howManyOutputItems)
 			//nGramGraph.printDataStructures() // prints all!
 			nGrams.forEach{it.printDataStructures(howManyOutputItems)}
 			
-			print("\n\n$TAG INSTANTIATING MODEL: ${modelNames[i]}")
-			val wrapper = Model(
+			print("\n\n$TAG INSTANTIATING CLASS MODEL: ${modelNames[i]}")
+
+			modelList.add(getWrappedModel(
 					lemmaList,
 					lemmaDataPerClass_nGramOf1,
 					nGrams,
 					nGramGraph,
 					modelNames[i]
-			)
-			modelList.add(wrapper)
+			))
 		}
+	}
+	
+	private fun getWrappedModel(
+					lemmaList: List<String>,
+					nGramOf1: LemmaDataPerClass,
+					nGrams: List<NgramProvider>,
+					nGramGraph: NgramGraph,
+					modelName: String
+			): Model{
+		return Model(lemmaList, nGramOf1, nGrams, nGramGraph, modelName)
 	}
 
 	private fun lemmatizeInput() {
