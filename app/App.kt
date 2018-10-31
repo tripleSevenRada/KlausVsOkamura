@@ -50,17 +50,12 @@ fun main(args: Array<String>) {
 
 class App{
 
-	private val rootK = "modelDataLemmatized/ClassK"
-	private val modelKName = "modelK"
-	private val rootO = "modelDataLemmatized/ClassO"
-	private val modelOName = "modelO"
+	private var modelRoots = listOf<String>() // (rootK, rootO ...)
+	private var modelNames = listOf<String>() // (modelKName, modelOName ...)
 
-	private val modelRoots = arrayOf(rootK, rootO)
-	private val modelNames = arrayOf(modelKName, modelOName)
-
-	private val inputDir = "/home/radim/eclipse-workspace-kotlin/KlausVsOkamura/input/"
-	private val inputFileNonLemmatized = "inputNonLemmatized.txt"
-	private val inputFileLemmatized = "inputLemmatized.txt"
+	private val inputDir: String
+	private val inputFileNonLemmatized: String
+	private val inputFileLemmatized: String
 	
 	private val howManyOutputItems: Int
 	private val howManyOutputItemsDefault = 12
@@ -69,13 +64,29 @@ class App{
 	
 	constructor(mapProp: Map<String, String>){
 		this.properties = mapProp
-		val howMany: String? = mapProp.get("howManyOutputItems")
+		val howMany: String? = properties.get("howManyOutputItems")
 		howManyOutputItems = if(howMany != null) {
 				val howManyOrNull: Int? = howMany.toIntOrNull()
 				if(howManyOrNull != null) howManyOrNull else howManyOutputItemsDefault
 			} else {
 				howManyOutputItemsDefault
 			}
+		try{
+			modelRoots = properties.get("modelDataRoots")!!.split(",")
+			modelNames = properties.get("modelNames")!!.split(",")
+			if(	modelRoots.size != modelNames.size ||
+				modelRoots.size == 0	// should never happen
+					) fail("modelRoots or modelNames problem")
+			modelRoots = modelRoots.map{e -> e.trim()}
+			modelNames = modelNames.map{e -> e.trim()}
+			
+			inputDir = properties.get("inputDir")!!
+			inputFileNonLemmatized = properties.get("inputFileNonLemmatized")!!
+			inputFileLemmatized = properties.get("inputFileLemmatized")!!
+			
+		}catch(e: NullPointerException){
+			fail(e.getLocalizedMessage())
+		}
 	}
 	
 	private var modelList = mutableListOf<Model>()
@@ -146,7 +157,7 @@ class App{
 	}
 
 	private fun lemmatizeInput() {
-		val input: Lemmatizer = Lemmatizer(inputDir, inputFileNonLemmatized, inputFileLemmatized)
+		val input: Lemmatizer = Lemmatizer(properties)
 		input.lemmatize()
 	}
 }

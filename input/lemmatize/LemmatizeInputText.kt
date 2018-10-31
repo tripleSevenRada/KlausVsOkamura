@@ -4,25 +4,41 @@ import java.io.File
 import java.lang.ProcessBuilder.Redirect
 import java.util.concurrent.TimeUnit
 
+import app.fail
+
 
 public val PREFIX = "LEMMATIZED_"
 
-class Lemmatizer(inputDirPath: String, filename: String, filenameLemmatized: String) {
+class Lemmatizer{
 
-	private val inputFilesDirPath = inputDirPath
-	private val filename = filename
-	private val filenameLemmatized = filenameLemmatized
 	private val TAG = this.toString()
-
-	// TODO di?
-	val morphoDiTaModel = "/home/radim/morphoDiTaModels/czech-morfflex-pdt-161115/czech-morfflex-pdt-161115.tagger" //czech-morfflex-161115.dict
-	val morphoDiTaBinDir = "/home/radim/morphoDiTa/githubRepo/morphodita/src/"
-	//val morphoDiTaBinDir = "/home/radim/morphoDiTa/morphodita/src/"// laptop
-	val useGuesser = 1
 	
-	val baseMorphoDiTaCommand = morphoDiTaBinDir + "run_morpho_analyze --output=vertical --from_tagger " + morphoDiTaModel + " " + useGuesser + " "
-
+	private var inputFilesDirPath: String
+	private var filename: String
+	private var filenameLemmatized: String
+	
+	private var morphoDiTaModel: String
+	private var morphoDiTaBinDir: String
+	private var useGuesser: String
+	
+	constructor(properties: Map<String,String>){
+		try{
+			inputFilesDirPath = properties.get("inputFilesDirPath")!!
+			filename = properties.get("filename")!!
+			filenameLemmatized = properties.get("filenameLemmatized")!!
+	
+			morphoDiTaModel = properties.get("morphoDiTaModel")!!
+			morphoDiTaBinDir = properties.get("morphoDiTaBinDir")!!
+			useGuesser = properties.get("useGuesser")!!
+		}catch(e: NullPointerException){
+			fail("$TAG - NullPointerException")
+		}	
+	}
+	
 	fun lemmatize() {
+		
+		val baseMorphoDiTaCommand = morphoDiTaBinDir + "run_morpho_analyze --output=vertical --from_tagger " + morphoDiTaModel + " " + useGuesser + " "
+
 		val inputFile: File = File(inputFilesDirPath + filename)
 		val fullCommand = baseMorphoDiTaCommand + inputFile.getPath() + ":" + inputFilesDirPath + PREFIX + filenameLemmatized
 		println("$TAG: LEMMATIZE FULL COMMAND:")
