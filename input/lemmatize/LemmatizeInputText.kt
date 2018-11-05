@@ -23,9 +23,9 @@ class Lemmatizer{
 	
 	constructor(properties: Map<String,String>){
 		try{
-			inputFilesDirPath = properties.get("inputFilesDirPath")!!
-			filename = properties.get("filename")!!
-			filenameLemmatized = properties.get("filenameLemmatized")!!
+			inputFilesDirPath = properties.get("inputDir")!!
+			filename = properties.get("inputFileNonLemmatized")!!
+			filenameLemmatized = properties.get("inputFileLemmatized")!!
 	
 			morphoDiTaModel = properties.get("morphoDiTaModel")!!
 			morphoDiTaBinDir = properties.get("morphoDiTaBinDir")!!
